@@ -10,7 +10,7 @@ export default async function handler(req, res) {
   if (!GOOGLE_API_KEY) {
     return res.status(500).json({ error: 'Google API key not set' });
   }
-
+  console.log('check ');
   try {
     const response = await axios.get(
       'https://maps.googleapis.com/maps/api/place/autocomplete/json',
