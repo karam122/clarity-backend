@@ -1,20 +1,31 @@
-// api/clarity.js
+import axios from 'axios';
+
 export default async function handler(req, res) {
-  const token = process.env.CLARITY_API_TOKEN;
+  const { input } = req.query;
+  if (!input) {
+    return res.status(400).json({ error: 'Missing input parameter' });
+  }
+
+  const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
+  if (!GOOGLE_API_KEY) {
+    return res.status(500).json({ error: 'Google API key not set' });
+  }
 
   try {
-    const response = await fetch(
-      'https://www.clarity.ms/export-data/api/v1/project-live-insights',
+    const response = await axios.get(
+      'https://maps.googleapis.com/maps/api/place/autocomplete/json',
       {
-        headers: {
-          Authorization: `Bearer ${token}`
+        params: {
+          input,
+          key: GOOGLE_API_KEY,
+          types: 'address'
         }
       }
     );
 
-    const data = await response.json();
-    res.status(200).json(data);
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch from Clarity' });
+    res.status(200).json(response.data);
+  } catch (error) {
+    console.error('Google autocomplete node error:', error.message);
+    res.status(500).json({ error: 'Internal Server Error Node JS' });
   }
 }
